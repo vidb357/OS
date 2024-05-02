@@ -85,3 +85,152 @@ int main() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sure, let's go through the code line by line:
+
+```c
+#include <stdio.h>
+#include <stdbool.h>
+```
+- These are standard C library includes. `<stdio.h>` is for input and output operations, and `<stdbool.h>` is for using the `bool` type and `true` and `false` constants.
+
+```c
+struct Process {
+    int id;
+    int arrival_time;
+    int burst_time;
+    int remaining_time;
+    int start_time;
+    int completion_time;
+};
+```
+- This defines a `struct` named `Process` which represents a process in the system. It has fields for the process ID, arrival time, burst time, remaining time, start time, and completion time.
+
+```c
+void srt(struct Process processes[], int n) {
+    int current_time = 0;
+    bool is_completed[n];
+    int total_completed = 0;
+    for (int i = 0; i < n; i++)
+        is_completed[i] = false;
+```
+- This is the function `srt` which implements the Shortest Remaining Time First (SRTF) scheduling algorithm.
+- It takes an array of `Process` structures `processes[]` and the number of processes `n` as parameters.
+- `current_time` keeps track of the current time in the simulation.
+- `is_completed[]` is an array to keep track of whether a process is completed or not.
+- `total_completed` keeps track of the total number of processes completed so far.
+- It initializes all elements of `is_completed[]` to `false`.
+
+```c
+    while (total_completed < n) {
+        int shortest_remaining = -1;
+        int shortest_burst = 999999;
+        for (int i = 0; i < n; i++) {
+            if (!is_completed[i] && processes[i].arrival_time <= current_time &&
+                processes[i].burst_time < shortest_burst) {
+                shortest_burst = processes[i].burst_time;
+                shortest_remaining = i;
+            }
+        }
+        if (shortest_remaining == -1) {
+            current_time++;
+            continue;
+        }
+        processes[shortest_remaining].remaining_time--;
+        current_time++;
+```
+- This loop runs until all processes are completed (`total_completed` reaches `n`).
+- It finds the process with the shortest remaining time among the processes that have arrived (`arrival_time <= current_time`).
+- If no process is found, it increments `current_time` and continues the loop.
+- If a process is found, it decrements its remaining time, increments `current_time`, and continues.
+
+```c
+        if (processes[shortest_remaining].remaining_time == 0) {
+            processes[shortest_remaining].completion_time = current_time;
+            total_completed++;
+            is_completed[shortest_remaining] = true;
+        }
+    }
+}
+```
+- If the remaining time of the selected process becomes 0, it marks the process as completed, updates its completion time, and increments `total_completed`.
+
+```c
+int main() {
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+```
+- The `main` function begins here. It asks the user to input the number of processes `n`.
+
+```c
+    struct Process processes[n];
+    for (int i = 0; i < n; i++) {
+        printf("Enter arrival time and burst time for process %d: ", i + 1);
+        scanf("%d %d", &processes[i].arrival_time, &processes[i].burst_time);
+        processes[i].id = i + 1;
+        processes[i].remaining_time = processes[i].burst_time;
+    }
+```
+- It initializes an array `processes[]` of `Process` structures based on the number of processes `n`.
+- It prompts the user to input arrival time and burst time for each process and initializes the corresponding attributes of each `Process` structure.
+
+```c
+    printf("Shortest Remaining Time (SRT) scheduling:\n");
+    srt(processes, n);
+```
+- It prints a message indicating that the Shortest Remaining Time (SRT) scheduling algorithm is being used.
+- It calls the `srt` function passing the array of processes and the number of processes as arguments.
+
+```c
+    int total_waiting_time = 0;
+    int total_turnaround_time = 0;
+    for (int i = 0; i < n; i++) {
+        processes[i].start_time = processes[i].completion_time - processes[i].burst_time;
+        total_waiting_time += processes[i].start_time - processes[i].arrival_time;
+        total_turnaround_time += processes[i].completion_time - processes[i].arrival_time;
+    }
+```
+- It calculates the total waiting time and total turnaround time for all processes.
+- For each process, it calculates the start time, adds it to the total waiting time, and calculates the turnaround time.
+
+```c
+    double avg_waiting_time = (double) total_waiting_time / n;
+    double avg_turnaround_time = (double) total_turnaround_time / n;
+```
+- It calculates the average waiting time and average turnaround time.
+
+```c
+    printf("Average Waiting Time: %.2lf\n", avg_waiting_time);
+    printf("Average Turnaround Time: %.2lf\n", avg_turnaround_time);
+```
+- It prints out the average waiting time and average turnaround time.
+
+```c
+    return 0;
+}
+```
+- It returns 0 to indicate successful execution of the program.
